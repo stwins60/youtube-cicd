@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/stwins60/youtube-cicd.git'
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/stwins60/youtube-cicd.git']])
             }
         }
         stage('SonarQube analysis') {
