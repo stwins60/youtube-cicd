@@ -14,7 +14,17 @@ pipeline {
                 cleanWs()
             }
         }
-//         stage('Checkout') {
-//             steps {
-//                 git branch: 'main', url: '
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/stwins60/youtube-cicd.git'
+            }
+        }
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh "${tool 'sonar-scanner'}/bin/sonar-scanner -Dsonar.projectKey=youtube-cicd -Dsonar.sources=."
+                }
+            }
+        }
+    }
 }
