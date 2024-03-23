@@ -89,8 +89,11 @@ pipeline {
             steps {
                 echo 'Deleting the application'
                 script {
-                    sh "docker stop $(docker ps -a -q --filter ancestor=$IMAGE_NAME)"
-                    sh "docker rm $(docker ps -a -q --filter ancestor=$IMAGE_NAME)"
+                    def containerId = sh(script: "docker ps -q --filter ancestor=$IMAGE_NAME", returnStdout: true).trim()
+                    if (containerId) {
+                        sh "docker stop $containerId"
+                        sh "docker rm $containerId"
+                    }
                 }
             }
         }
