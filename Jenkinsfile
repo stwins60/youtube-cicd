@@ -45,9 +45,8 @@ pipeline {
         }
         stage('Docker Login') {
             steps {
-                    sh "echo $DOCKER_CREDENTIALS_USR_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
-                    echo "Login Succeeded"
-                }
+               sh "echo $DOCKER_CREDENTIALS_USR_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+               echo "Login Succeeded"
             }
         }
         stage('Docker Build') {
