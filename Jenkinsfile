@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    parameters {
+        choice(name: 'BUILD_TYPE', choices: ['Create', 'Delete'], description: 'Choose the type of build to run')
+    }
     tools {
         nodejs 'node21'
     }
@@ -63,6 +66,41 @@ pipeline {
             steps {
                 sh "trivy image $IMAGE_NAME"
             }
+        }
+        stage('Deploy') {
+            when {
+                expression {
+                    params.BUILD_TYPE == 'Create'
+                }
+            }
+            steps {
+                echo 'Deploying the application'
+                script {
+                   sh "docker run -d -p 8077:3000 $IMAGE_NAME"
+                }
+            }
+        }
+        stage('Delete') {
+            when {
+                expression {
+                    params.BUILD_TYPE == 'Delete'
+                }
+            }
+            steps {
+                echo 'Deleting the application'
+                script {
+                    sh "docker stop $(docker ps -a -q --filter ancestor=$IMAGE_NAME)"
+                    sh "docker rm $(docker ps -a -q --filter ancestor=$IMAGE_NAME)"
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend channel: '#alerts', color: 'good', message: "Build successful for ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+        }
+        failure {
+            slackSend channel: '#alerts', color: 'danger', message: "Build failed for ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
         }
     }
 }
